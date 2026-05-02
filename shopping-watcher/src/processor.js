@@ -91,7 +91,7 @@ async function handleActionRequiredEmail(email, parsed) {
   const existing = await findOrderByGmailThreadId(email.threadId);
   if (!existing) return;
 
-  await postThreadMessage(existing.slack_channel, existing.slack_ts, `⚠️ 対応が必要だよ！${parsed.action_reason}`, true);
+  await postThreadMessage(existing.slack_channel, existing.slack_ts, `⚠️ 対応が必要だよ！${parsed.action_reason}`);
   await updateOrder(existing._id, { status: 'action_required', notified_at: today });
 }
 

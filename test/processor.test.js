@@ -175,7 +175,7 @@ describe('handleActionRequiredEmail', () => {
 
     // Then
     expect(slack.postThreadMessage).toHaveBeenCalledWith(
-      CHANNEL_ID, '111.222', '⚠️ 対応が必要だよ！お支払い方法の変更が必要です', true
+      CHANNEL_ID, '111.222', '⚠️ 対応が必要だよ！お支払い方法の変更が必要です'
     );
     expect(firestore.updateOrder).toHaveBeenCalledWith('docId1', expect.objectContaining({
       status: 'action_required',
