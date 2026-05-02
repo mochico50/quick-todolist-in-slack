@@ -1,0 +1,30 @@
+{
+  "name": "quick-todolist-in-slack",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ],
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@google-cloud/firestore$": "<rootDir>/node_modules/@google-cloud/firestore",
+      "^@anthropic-ai/sdk$": "<rootDir>/node_modules/@anthropic-ai/sdk",
+      "^@slack/web-api$": "<rootDir>/node_modules/@slack/web-api",
+      "^googleapis$": "<rootDir>/node_modules/googleapis"
+    }
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google-cloud/firestore": "^7.0.0",
+    "@slack/web-api": "^7.0.0",
+    "dotenv": "^16.0.0",
+    "googleapis": "^144.0.0"
+  }
+}
