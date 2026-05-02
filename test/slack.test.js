@@ -1,4 +1,4 @@
-const { getPendingPosts, addReaction, postThreadMessage } = require('../gmail-watcher/src/slack');
+const { getPendingPosts, addReaction, postThreadMessage } = require('../shopping-watcher/src/slack');
 
 jest.mock('@slack/web-api', () => ({
   WebClient: jest.fn(),
@@ -145,6 +145,23 @@ describe('postThreadMessage', () => {
       channel: 'C123',
       thread_ts: '1234567890.123456',
       text: '注文確認したよ📦 5月3日届く予定',
+      reply_broadcast: false,
+    });
+  });
+
+  test('broadcast=true のとき reply_broadcast: true で呼ぶ', async () => {
+    // Given
+    mockPostMessage.mockResolvedValue({ ok: true });
+
+    // When
+    await postThreadMessage('C123', '1234567890.123456', '⚠️ 対応が必要だよ！', true);
+
+    // Then
+    expect(mockPostMessage).toHaveBeenCalledWith({
+      channel: 'C123',
+      thread_ts: '1234567890.123456',
+      text: '⚠️ 対応が必要だよ！',
+      reply_broadcast: true,
     });
   });
 });

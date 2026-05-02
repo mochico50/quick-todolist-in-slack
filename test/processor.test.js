@@ -1,28 +1,28 @@
-const { handleOrderedEmail, handleShippedEmail, handleActionRequiredEmail } = require('../gmail-watcher/src/processor');
+const { handleOrderedEmail, handleShippedEmail, handleActionRequiredEmail } = require('../shopping-watcher/src/processor');
 
-jest.mock('../gmail-watcher/src/gmail', () => ({
+jest.mock('../shopping-watcher/src/gmail', () => ({
   createAuthClient: jest.fn(),
   fetchShoppingEmails: jest.fn(),
 }));
-jest.mock('../gmail-watcher/src/slack', () => ({
+jest.mock('../shopping-watcher/src/slack', () => ({
   getPendingPosts: jest.fn(),
   addReaction: jest.fn(),
   postThreadMessage: jest.fn(),
 }));
-jest.mock('../gmail-watcher/src/firestore', () => ({
+jest.mock('../shopping-watcher/src/firestore', () => ({
   findOrderByGmailThreadId: jest.fn(),
   createOrder: jest.fn(),
   updateOrder: jest.fn(),
   isAlreadyProcessed: jest.fn(),
 }));
-jest.mock('../gmail-watcher/src/claude', () => ({
+jest.mock('../shopping-watcher/src/claude', () => ({
   parseEmail: jest.fn(),
   matchSlackPost: jest.fn(),
 }));
 
-const slack = require('../gmail-watcher/src/slack');
-const firestore = require('../gmail-watcher/src/firestore');
-const claude = require('../gmail-watcher/src/claude');
+const slack = require('../shopping-watcher/src/slack');
+const firestore = require('../shopping-watcher/src/firestore');
+const claude = require('../shopping-watcher/src/claude');
 
 const CHANNEL_ID = 'C123';
 
@@ -52,7 +52,7 @@ describe('handleOrderedEmail', () => {
 
     // Then
     expect(slack.addReaction).toHaveBeenCalledWith(CHANNEL_ID, '111.222', 'white_check_mark');
-    expect(slack.postThreadMessage).toHaveBeenCalledWith(CHANNEL_ID, '111.222', '注文確認したよ📦 5月3日届く予定');
+    expect(slack.postThreadMessage).toHaveBeenCalledWith(CHANNEL_ID, '111.222', '注文確認したよ📦 5月3日届く予定\n商品: アタック詰め替え用 900g');
     expect(firestore.createOrder).toHaveBeenCalledWith(expect.objectContaining({
       slack_ts: '111.222',
       gmail_thread_id: 'thread1',
@@ -93,7 +93,7 @@ describe('handleOrderedEmail', () => {
 
     // Then
     expect(slack.postThreadMessage).toHaveBeenCalledWith(
-      CHANNEL_ID, '111.222', '注文確認したよ📦 お届け日は追ってご確認を'
+      CHANNEL_ID, '111.222', '注文確認したよ📦 お届け日は追ってご確認を\n商品: アタック詰め替え用 900g'
     );
   });
 });
@@ -117,7 +117,7 @@ describe('handleShippedEmail', () => {
     await handleShippedEmail(email, parsed);
 
     // Then
-    expect(slack.postThreadMessage).toHaveBeenCalledWith(CHANNEL_ID, '111.222', '発送されたよ🚚 5月3日届く予定');
+    expect(slack.postThreadMessage).toHaveBeenCalledWith(CHANNEL_ID, '111.222', '発送されたよ🚚 5月3日届く予定\n商品: アタック詰め替え用 900g');
     expect(firestore.updateOrder).toHaveBeenCalledWith('docId1', expect.objectContaining({
       status: 'shipped',
       notified_at: expect.any(String),
@@ -175,7 +175,7 @@ describe('handleActionRequiredEmail', () => {
 
     // Then
     expect(slack.postThreadMessage).toHaveBeenCalledWith(
-      CHANNEL_ID, '111.222', '⚠️ 対応が必要だよ！お支払い方法の変更が必要です'
+      CHANNEL_ID, '111.222', '⚠️ 対応が必要だよ！お支払い方法の変更が必要です', true
     );
     expect(firestore.updateOrder).toHaveBeenCalledWith('docId1', expect.objectContaining({
       status: 'action_required',

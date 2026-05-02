@@ -1,4 +1,4 @@
-const { parseEmail, matchSlackPost } = require('../gmail-watcher/src/claude');
+const { parseEmail, matchSlackPost } = require('../shopping-watcher/src/claude');
 
 // Claude APIをモック
 jest.mock('@anthropic-ai/sdk', () => {

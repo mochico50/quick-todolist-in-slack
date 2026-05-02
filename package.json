@@ -9,7 +9,13 @@
     "testMatch": [
       "**/test/**/*.test.js"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@google-cloud/firestore$": "<rootDir>/node_modules/@google-cloud/firestore",
+      "^@anthropic-ai/sdk$": "<rootDir>/node_modules/@anthropic-ai/sdk",
+      "^@slack/web-api$": "<rootDir>/node_modules/@slack/web-api",
+      "^googleapis$": "<rootDir>/node_modules/googleapis"
+    }
   },
   "devDependencies": {
     "jest": "^29.0.0"

@@ -23,6 +23,8 @@ type ParsedEmail = {
   ordered_at: string | null;    // 注文日 YYYY-MM-DD
   expected_at: string | null;   // お届け予定日 YYYY-MM-DD
   action_reason: string | null; // 要対応の理由（action_required のみ）
+  order_url: string | null;     // 注文確認URL
+  tracking_url: string | null;  // 荷物追跡URL
 }
 ```
 
@@ -99,7 +101,9 @@ async function matchSlackPost(
       item_name:     { type: "string", description: "商品名" },
       ordered_at:    { type: "string", description: "注文日 YYYY-MM-DD" },
       expected_at:   { type: "string", description: "お届け予定日 YYYY-MM-DD" },
-      action_reason: { type: "string", description: "要対応の理由（action_requiredの場合）" }
+      action_reason: { type: "string", description: "要対応の理由（action_requiredの場合）" },
+      order_url:     { type: "string", description: "注文確認URL" },
+      tracking_url:  { type: "string", description: "荷物追跡URL" }
     },
     required: ["email_type", "item_name"]
   }

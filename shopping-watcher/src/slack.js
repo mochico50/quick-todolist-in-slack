@@ -40,11 +40,12 @@ async function addReaction(channelId, ts, reactionName) {
  * @param {string} channelId
  * @param {string} threadTs
  * @param {string} text
+ * @param {boolean} [broadcast=false]
  * @returns {Promise<void>}
  */
-async function postThreadMessage(channelId, threadTs, text) {
+async function postThreadMessage(channelId, threadTs, text, broadcast = false) {
   const client = new WebClient(process.env.SLACK_BOT_TOKEN);
-  await client.chat.postMessage({ channel: channelId, thread_ts: threadTs, text });
+  await client.chat.postMessage({ channel: channelId, thread_ts: threadTs, text, reply_broadcast: broadcast });
 }
 
 module.exports = { getPendingPosts, addReaction, postThreadMessage };

@@ -1,4 +1,4 @@
-const { fetchShoppingEmails } = require('../gmail-watcher/src/gmail');
+const { fetchShoppingEmails } = require('../shopping-watcher/src/gmail');
 
 // Gmail APIをモック
 jest.mock('googleapis', () => {

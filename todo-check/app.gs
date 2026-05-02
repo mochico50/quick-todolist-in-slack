@@ -61,7 +61,8 @@ function getPendingTodos(channelId) {
     const reactions = msg.reactions || [];
     const isDone = reactions.some(r => r.name === 'white_check_mark');
     const isCancelled = reactions.some(r => r.name === 'x');
-    return !isDone && !isCancelled;
+    const isChat = reactions.some(r => r.name === 'speech_balloon') || msg.text.startsWith('💬');
+    return !isDone && !isCancelled && !isChat;
   });
 }
 
@@ -74,28 +75,31 @@ function doPost(e) {
   }
 
   const channelId = params.channel_id;
-
-  // 1. 親メッセージを投稿
   const parentData = postMessage(channelId, '📋 start checking todo list...');
   const threadTs = parentData.message.ts;
 
-  // 2. 未完了Todoを取得
   const pendingTodos = getPendingTodos(channelId);
 
-  // 3. スレッドにpermalinkを投稿
   if (pendingTodos.length === 0) {
     postMessage(channelId, 'Todoなし🎉', threadTs);
-  } else {
-    for (const todo of pendingTodos) {
-      const permalink = getPermalink(channelId, todo.ts);
-      if (permalink) postMessage(channelId, permalink, threadTs);
-    }
+    return ContentService.createTextOutput('');
   }
 
-  return ContentService.createTextOutput(JSON.stringify({
-    response_type: 'in_channel',
-    text: '',
-  })).setMimeType(ContentService.MimeType.JSON);
+  const permalinkRequests = pendingTodos.map(todo => ({
+    url: `https://slack.com/api/chat.getPermalink?channel=${channelId}&message_ts=${todo.ts}`,
+    headers: { Authorization: 'Bearer ' + SLACK_BOT_TOKEN },
+    muteHttpExceptions: true,
+  }));
+  const permalinks = UrlFetchApp.fetchAll(permalinkRequests)
+    .map(r => JSON.parse(r.getContentText()))
+    .filter(d => d.ok)
+    .map(d => d.permalink);
+
+  for (const permalink of permalinks) {
+    postMessage(channelId, permalink, threadTs);
+  }
+
+  return ContentService.createTextOutput('');
 }
 
 function objectToParams(obj) {

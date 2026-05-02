@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 
-const GMAIL_QUERY = 'subject:(注文 OR 発送 OR お届け OR ご購入 OR 出荷 OR キャンセル)';
+const GMAIL_QUERY = 'subject:(注文 OR ご注文 OR 発送 OR お届け OR ご購入 OR 出荷 OR キャンセル) -subject:マックデリバリー';
 
 /**
  * @returns {import('googleapis').Auth.OAuth2Client}

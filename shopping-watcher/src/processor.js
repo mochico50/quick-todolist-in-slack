@@ -28,7 +28,10 @@ async function handleOrderedEmail(email, parsed) {
 
   if (matchedPost) {
     await addReaction(channelId, matchedPost.ts, 'white_check_mark');
-    await postThreadMessage(channelId, matchedPost.ts, `注文確認したよ📦 ${formatExpectedAt(parsed.expected_at)}`);
+    const orderMsg = [`注文確認したよ📦 ${formatExpectedAt(parsed.expected_at)}`];
+    if (parsed.item_name) orderMsg.push(`商品: ${parsed.item_name}`);
+    if (parsed.order_url) orderMsg.push(`注文確認: ${parsed.order_url}`);
+    await postThreadMessage(channelId, matchedPost.ts, orderMsg.join('\n'));
   }
 
   await createOrder({
@@ -55,7 +58,10 @@ async function handleShippedEmail(email, parsed) {
   if (existing) {
     if (existing.notified_at === today) return;
 
-    await postThreadMessage(existing.slack_channel, existing.slack_ts, `発送されたよ🚚 ${formatExpectedAt(parsed.expected_at)}`);
+    const shippedMsg = [`発送されたよ🚚 ${formatExpectedAt(parsed.expected_at)}`];
+    if (parsed.item_name) shippedMsg.push(`商品: ${parsed.item_name}`);
+    if (parsed.tracking_url) shippedMsg.push(`荷物追跡: ${parsed.tracking_url}`);
+    await postThreadMessage(existing.slack_channel, existing.slack_ts, shippedMsg.join('\n'));
     await updateOrder(existing._id, {
       status: 'shipped',
       expected_at: parsed.expected_at ?? existing.expected_at,
@@ -85,7 +91,7 @@ async function handleActionRequiredEmail(email, parsed) {
   const existing = await findOrderByGmailThreadId(email.threadId);
   if (!existing) return;
 
-  await postThreadMessage(existing.slack_channel, existing.slack_ts, `⚠️ 対応が必要だよ！${parsed.action_reason}`);
+  await postThreadMessage(existing.slack_channel, existing.slack_ts, `⚠️ 対応が必要だよ！${parsed.action_reason}`, true);
   await updateOrder(existing._id, { status: 'action_required', notified_at: today });
 }
 
@@ -97,21 +103,32 @@ async function checkGmailAndNotify() {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const emails = await fetchShoppingEmails(auth, since);
 
+  console.log(`[gmail] ${emails.length}件のメールを取得`);
+
   for (const email of emails) {
     try {
-      if (await isAlreadyProcessed(email.threadId)) continue;
+      if (await isAlreadyProcessed(email.threadId)) {
+        console.log(`[skip] 処理済み: ${email.subject}`);
+        continue;
+      }
 
       const parsed = await parseEmail(email.subject, email.body);
+      console.log(`[claude] ${email.subject} → ${parsed.email_type}`);
 
       if (parsed.email_type === 'ordered') {
         await handleOrderedEmail(email, parsed);
+        console.log(`[ordered] 処理完了: ${parsed.item_name}`);
       } else if (parsed.email_type === 'shipped') {
         await handleShippedEmail(email, parsed);
+        console.log(`[shipped] 処理完了: ${parsed.item_name}`);
       } else if (parsed.email_type === 'action_required') {
         await handleActionRequiredEmail(email, parsed);
+        console.log(`[action_required] 処理完了: ${parsed.item_name}`);
+      } else {
+        console.log(`[other] スキップ: ${email.subject}`);
       }
     } catch (err) {
-      console.error(`Failed to process email ${email.id}:`, err);
+      console.error(`[error] ${email.subject}:`, err);
     }
   }
 }

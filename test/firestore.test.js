@@ -3,7 +3,7 @@ const {
   createOrder,
   updateOrder,
   isAlreadyProcessed,
-} = require('../gmail-watcher/src/firestore');
+} = require('../shopping-watcher/src/firestore');
 
 jest.mock('@google-cloud/firestore', () => ({
   Firestore: jest.fn(),

@@ -4,20 +4,17 @@
 
 家族間の買い物を透明化するSlack Botに、Gmail連携機能を追加するプロジェクト。
 
-- `todo-check/` : 既存のGASベースBot（変更しない）
-- `gmail-watcher/` : 新規のGCP Cloud Functionsバッチ（今回の実装対象）
+- `todo-check/` : 既存のGASベースBot
+- `shopping-watcher/` : 新規のGCP Cloud Functionsバッチ（今回の実装対象）
 - `docs/` : 仕様書・インターフェース定義
 - `test/` : テストコード
 
 ## 実装ルール
 
-### 変更してはいけないもの
-- `todo-check/app.gs` は一切変更しない
-
 ### 実装の順序（SDD）
 1. `docs/` の仕様・インターフェース定義を読む
 2. `test/` にテストを書く（仕様から導出）
-3. `gmail-watcher/src/` に実装する（テストを通す）
+3. `shopping-watcher/src/` に実装する（テストを通す）
 
 ### コーディング規約
 - JavaScript（Node.js 20）で書く。TypeScriptは使わない
@@ -41,7 +38,7 @@
 ## ディレクトリ構成
 
 ```
-gmail-watcher/
+shopping-watcher/
 ├── package.json
 ├── index.js              # Cloud Functionsエントリポイント
 └── src/
@@ -69,6 +66,6 @@ GOOGLE_CLOUD_PROJECT
 ## 参照ドキュメント
 
 - todo-check 機能仕様 → `docs/spec-todo-check.md`
-- gmail-watcher 機能仕様 → `docs/spec-gmail-watcher.md`
+- shopping-watcher 機能仕様 → `docs/spec-shopping-watcher.md`
 - 型・インターフェース定義 → `docs/interfaces.md`
 - 元のSpecification → `SPECIFICATION.md`（ユーザーが提供した仕様書）
